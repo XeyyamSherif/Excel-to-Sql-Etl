@@ -71,7 +71,7 @@ def main():
                             missing_columns_in_sql)
     write_to_sql(df_finance, table_name, engine)
   except Exception as err:
-    print(f'Error occured: {str(e)}')
+    print(f'Error occured: {str(err)}')
   finally:
       engine.dispose()
 
