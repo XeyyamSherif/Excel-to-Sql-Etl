@@ -29,7 +29,7 @@ def add_missing_columns(engine, table_name, dataframe, columns):
   with engine.connect() as connection:
     for column, dtype in data_types.items():
       query = text(
-          f'ALTER TABLE finance_sample ADD COLUMN "{column}" {get_data_type_info(dtype)};'
+          f'ALTER TABLE {table_name} ADD COLUMN "{column}" {get_data_type_info(dtype)};'
       )
       logger.info(f"Executing query: {query}")
       connection.execute(query)
@@ -55,9 +55,6 @@ def main():
 
   engine = create_engine(DATABASE_URL)
   df_finance = read_excel(file_path)
-
-
-
   try:
     if check_table_exists(engine, table_name):
       existing_columns = get_existing_columns(engine, table_name)
