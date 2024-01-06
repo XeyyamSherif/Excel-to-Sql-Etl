@@ -50,9 +50,7 @@ for index, row in df.iterrows():
         Sales=row.get('Sales', None)
     )
     session.add(record)
-    print(df)
 
-print('Done')
 
 session.commit()
 session.close()

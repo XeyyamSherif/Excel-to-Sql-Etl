@@ -57,7 +57,6 @@ def main():
   df_finance = read_excel(file_path)
   try:
     fixed_df = fix_schema_of_sql_table(df_finance, main_schema)
-    print(fixed_df)
     if not fixed_df.empty:
       if check_table_exists(engine, table_name):
         existing_columns = get_existing_columns(engine, table_name)
