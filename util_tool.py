@@ -14,3 +14,13 @@ def get_data_type_info(dtype):
     return DataTypePostgre.int.value
   else:
     return DataTypePostgre.str.value
+
+
+
+def fix_schema_of_sql_table(old_dataframe, schema):
+    valid_columns = [col for col in old_dataframe.columns if col in schema]
+    new_dataframe = old_dataframe[valid_columns].rename(columns=schema)
+    new_dataframe = new_dataframe.dropna(how='all')
+    return new_dataframe
+
+

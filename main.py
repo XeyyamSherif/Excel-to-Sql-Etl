@@ -1,8 +1,8 @@
 import pandas as pd
-from sqlalchemy import create_engine, text, String
-from util_tool import get_data_type_info
 import logging
-
+from sqlalchemy import create_engine, text, String
+from util_tool import get_data_type_info, fix_schema_of_sql_table
+from table_schema import main_schema
 logging_format = "[%(levelname)s] %(asctime)s - %(message)s"
 logging.basicConfig(level=logging.INFO, format=logging_format)
 logger = logging.getLogger()
@@ -48,7 +48,7 @@ def write_to_sql(dataframe, table_name, engine):
 
 
 def main():
-  file_path = './excel/test_many.xlsx'
+  file_path = './excel/financial_sample_same_schema_less_data.xlsx'
   table_name = 'finance_sample'
   DATABASE_URL = 'postgresql://postgres:1234@127.0.0.1:5432/testDB'  #burada oz db url - nizi yazin
   # DATABASE_URL = 'postgres://pass@host/db_name'   diger url ile ishlemese bu url ile yoxlayin
@@ -56,24 +56,31 @@ def main():
   engine = create_engine(DATABASE_URL)
   df_finance = read_excel(file_path)
   try:
-    if check_table_exists(engine, table_name):
-      existing_columns = get_existing_columns(engine, table_name)
-      missing_columns_in_excel = set(existing_columns) - set(df_finance.columns)
-      missing_columns_in_sql = list(
-          set(df_finance.columns) - set(existing_columns))
+    fixed_df = fix_schema_of_sql_table(df_finance, main_schema)
+    print(fixed_df)
+    if not fixed_df.empty:
+      if check_table_exists(engine, table_name):
+        existing_columns = get_existing_columns(engine, table_name)
+        missing_columns_in_excel = set(existing_columns) - set(fixed_df.columns)
+        missing_columns_in_sql = list(
+            set(fixed_df.columns) - set(existing_columns))
 
-      if missing_columns_in_excel:
-        df_finance = update_dataframe_with_missing_columns(
-            df_finance, missing_columns_in_excel)
+        if missing_columns_in_excel:
+          fixed_df = update_dataframe_with_missing_columns(
+              fixed_df, missing_columns_in_excel)
 
-      if missing_columns_in_sql:
-        add_missing_columns(engine, table_name, df_finance,
-                            missing_columns_in_sql)
-    write_to_sql(df_finance, table_name, engine)
+        if missing_columns_in_sql:
+          add_missing_columns(engine, table_name, fixed_df,
+                              missing_columns_in_sql)
+      write_to_sql(fixed_df, table_name, engine)
+    else:
+      logger.info('No data to add')
   except Exception as err:
       logger.error(f'Error occurred: {str(err)}')
   finally:
       engine.dispose()
+
+
 
 
 if __name__ == "__main__":
