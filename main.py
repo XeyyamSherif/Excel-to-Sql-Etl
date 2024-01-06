@@ -48,7 +48,7 @@ def write_to_sql(dataframe, table_name, engine):
 
 
 def main():
-  file_path = './excel/financial_sample_same_schema_less_data.xlsx'
+  file_path = './excel/financial_sample_main.xlsx'
   table_name = 'finance_sample'
   DATABASE_URL = 'postgresql://postgres:1234@127.0.0.1:5432/testDB'  #burada oz db url - nizi yazin
   # DATABASE_URL = 'postgres://pass@host/db_name'   diger url ile ishlemese bu url ile yoxlayin
